@@ -114,7 +114,7 @@ class PropertyResponse(BaseModel):
     constructionYear: int | None = None
     location: Location | None = None
     additionalArea: int | None = None
-    rent: float | None = None
+    rent: int | None = None
     floor: str | None = None
 
 class QueryResponse(BaseModel):

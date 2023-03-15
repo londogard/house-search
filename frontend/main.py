@@ -40,10 +40,20 @@ def main():
         c1, c2 = st.columns([3, 1])
         with c1:
             for house in houses:
-                st.subheader(house.location.address.streetAddress)
-                st.dataframe(pd.DataFrame([house.dict()]).T, use_container_width=True)
+                rent = "." if house.rent is None else f" with {house.rent} SEK/month rent."
+                st.subheader(f"{house.location.address.streetAddress} ({house.location.address.city})")
 
-                pass
+                rows = [
+                    f"**{house.objectType}** with {house.rooms} rooms ({house.livingArea} m²).  \n"
+                    f"Listing Price is {house.listPrice / 1e6} million SEK{rent}  \n",
+                    f"[booli.se]({house.url})"
+                ]
+                st.markdown("".join(rows), unsafe_allow_html=True)
+                st.write("---")
+            st.subheader("Quick Compare All")
+            df = pd.DataFrame([h.dict() for h in houses])
+            df = df.drop(["source", "booliId", "location"], axis="columns", errors="ignore")
+            st.dataframe(df, use_container_width=True)
         with c2:
             st.markdown(
                 "<div style='background:lightgray;padding:10px;border-radius:6px;height: 250px;'>Kul att veta :)</div>",
