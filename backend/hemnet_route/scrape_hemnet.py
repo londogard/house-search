@@ -19,7 +19,6 @@ def scrape_listing_url(url: str):
     max_page = max([int(r.string) for r in refs if r.string.isdigit()])
     pages = range(max_page)
 
-
     print(max_page)
     print(refs)
     pass
