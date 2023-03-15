@@ -100,17 +100,17 @@ class Location(BaseModel):
 class PropertyResponse(BaseModel):
     source: Source
     rooms: int
-    hasPatio: int
-    hasSolarPanels: int
-    hasFireplace: int
     livingArea: int
     listPrice: int
     booliId: int
     objectType: str
-    hasBalcony: int
     published: str
     biddingOpen: int
     url: str
+    hasPatio: int | None = None
+    hasSolarPanels: int | None = None
+    hasFireplace: int | None = None
+    hasBalcony: int | None = None
     constructionYear: int | None = None
     location: Location | None = None
     additionalArea: int | None = None
