@@ -1,9 +1,9 @@
 import streamlit as st
 import pandas as pd
 
-
 from backend.booli_route.booli_api import Query
 from frontend import api_caller
+from frontend.additional_filters import additional_filters
 
 st.set_page_config("House Search", page_icon="🏠", layout="wide")
 
@@ -25,22 +25,17 @@ def main():
         if "alla" in building_types:
             building_types = None
 
-        with st.expander("Additional Filters"):
-            c1, c2, c3 = st.columns(3)
-            with c1:
-                rooms = st.slider("No of Rooms", 0, 15, (0, 15))
-                new_production = st.checkbox("Is New Construction")
-            with c2:
-                area = st.slider("Living Area", 0, 250, (0, 250), 10, format="%d m²")
-            with c3:
-                price = st.slider("Price (milion SEK)", 0., 20., (0., 20.), 0.1, format="%.1f")
+        filter_data = additional_filters()
 
         submitted = st.form_submit_button("Find Houses!")
     if submitted:
-        query = Query(query=query, dim=str(buffer * 1000), price_interval=price, rooms=rooms, living_area=area,
-                  object_type=building_types, is_new_construction=new_production)
-        #houses = api_caller.get_booli_listings(query.json())
-        houses = api_caller.get_booli_listings(query, str(query))
+        props = filter_data.house_properties
+        query = Query(query=query, dim=str(buffer * 1000), price_interval=props.price,
+                      rooms=props.rooms, living_area=props.area,
+                      object_type=building_types, is_new_construction=props.new_production)
+
+        # houses = api_caller.get_booli_listings(query.json())
+        houses = api_caller.get_booli_listings(query, query.json())
 
         c1, c2 = st.columns([3, 1])
         with c1:
@@ -50,8 +45,9 @@ def main():
 
                 pass
         with c2:
-            st.markdown("<div style='background:lightgray;padding:10px;border-radius:6px;height: 250px;'>Kul att veta :)</div>", unsafe_allow_html=True)
-
+            st.markdown(
+                "<div style='background:lightgray;padding:10px;border-radius:6px;height: 250px;'>Kul att veta :)</div>",
+                unsafe_allow_html=True)
 
 
 if __name__ == '__main__':
