@@ -21,8 +21,10 @@ def get_pois_in_range(center: tuple[float, float] | Polygon, buffer_meters: int 
 
 
 if __name__ == '__main__':
-    tags = {'amenity': ['restaurant', 'pub', 'hotel'],
-            'building': 'hotel',
-            'tourism': 'hotel'}
+    tags = {
+        'amenity': ['restaurant', 'pub', 'hotel'],
+        'building': 'hotel',
+        'tourism': 'hotel'
+    }
     gdf = get_pois_in_range((34.0483, -118.2531), 500, tags)
     print(gdf.head())

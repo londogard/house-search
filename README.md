@@ -3,6 +3,31 @@ A house searching app written in Python (Innovation Day 2023)
 
 ![data flow](data.excalidraw.png)
 
+## Requirements
+
+1. Filter by criterias
+    - beach, restaurants, food-store, bus-stop/train
+2. Show-case listings within a area
+
+### Extra Scope
+
+1. Average salary in area
+2. Natural Language Query (ChatGPT -> structured query)
+3. Selling Description (e.g. Wiki+ChatGPT)
+
+### Super Future Scope
+
+1. Calculate Room Sizes based on total sqm & "planritning"
+
+## How to divide work
+
+1. Frontend -- Pause
+2. (Optional) Requirements / Improvements / Flow -- Erik
+3. OSM Integration -- 
+4. Booli integration -- 
+5. Backend Core -- 
+6. Tests -- 
+
 ## Installation
 
 ```bash
@@ -58,5 +83,9 @@ Easier to test.
 ### 3. Streamlit + FastAPI
 We use FastAPI as a backend and streamlit as a frontend. This decoupling makes the backend testable in separation.
 
-### 4. ???
+### 4. FastAPI + (React / Svelte / ...)
+Slower development. Better.
 
+### 5. ???
+
+...
