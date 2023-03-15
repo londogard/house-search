@@ -4,6 +4,14 @@ import pandas as pd
 from backend.booli_route.booli_api import Query
 from frontend import api_caller
 from frontend.additional_filters import additional_filters
+import osm_query
+from typing import Any
+from osm_query import get_pois_in_range_by_filter
+
+@st.cache_resource
+def get_tags() -> dict[str, Any]:
+    return osm_query.get_tag_dict()
+
 
 st.set_page_config("House Search", page_icon="🏠", layout="wide")
 
@@ -28,28 +36,44 @@ def main():
         filter_data = additional_filters()
 
         submitted = st.form_submit_button("Find Houses!")
+
     if submitted:
         props = filter_data.house_properties
+
         query = Query(query=query, dim=str(buffer * 1000), price_interval=props.price,
                       rooms=props.rooms, living_area=props.area,
                       object_type=building_types, is_new_construction=props.new_production)
 
         # houses = api_caller.get_booli_listings(query.json())
         houses = api_caller.get_booli_listings(query, query.json())
-
         c1, c2 = st.columns([3, 1])
         with c1:
+            missing_houses = []
             for house in houses:
-                rent = "." if house.rent is None else f" with {house.rent} SEK/month rent."
-                st.subheader(f"{house.location.address.streetAddress} ({house.location.address.city})")
+                coord = (house.location.position.latitude, house.location.position.longitude)
+                gdf, passing = get_pois_in_range_by_filter(filter_data.nearby, coord, filter_data.nearby.distance * 1000)
 
-                rows = [
-                    f"**{house.objectType}** with {house.rooms} rooms ({house.livingArea} m²).  \n"
-                    f"Listing Price is {house.listPrice / 1e6} million SEK{rent}  \n",
-                    f"[booli.se]({house.url})"
-                ]
-                st.markdown("".join(rows), unsafe_allow_html=True)
-                st.write("---")
+                if passing:
+                    rent = "." if house.rent is None else f" with {house.rent} SEK/month rent."
+
+                    st.subheader(f"{house.location.address.streetAddress} ({house.location.address.city})")
+
+                    rows = [
+                        f"**{house.objectType}** with {house.rooms} rooms ({house.livingArea} m²).  \n"
+                        f"Listing Price is {house.listPrice / 1e6} million SEK{rent}  \n",
+                        f"[booli.se]({house.url})"
+                    ]
+                    st.markdown("".join(rows), unsafe_allow_html=True)
+                    with st.expander("Show nearby"):
+                        st.dataframe(gdf.drop("geometry", axis="columns"), use_container_width=True)
+                    st.write("---")
+                else:
+                    missing_houses.append(house.location.address.streetAddress)
+
+            if len(missing_houses):
+                st.subheader("Houses not fulfilling the criterias")
+                st.write(",".join(missing_houses))
+
             st.subheader("Quick Compare All")
             df = pd.DataFrame([h.dict() for h in houses])
             df = df.drop(["source", "booliId", "location"], axis="columns", errors="ignore")
