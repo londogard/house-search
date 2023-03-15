@@ -1,6 +1,6 @@
 import json
 
-from booli_route.booli_api import PropertyResponse, Query, LISTINGS_URL, QueryResponse
+from backend.booli_route.booli_api import PropertyResponse, Query, LISTINGS_URL, QueryResponse
 from fastapi import APIRouter
 import requests
 

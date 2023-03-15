@@ -1,5 +1,5 @@
-from dataclasses import dataclass
 from typing import Any, Literal
+
 from pydantic import BaseModel
 
 # https://www.booli.se/p/api/referens

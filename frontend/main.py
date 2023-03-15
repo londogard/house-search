@@ -39,13 +39,18 @@ def main():
     if submitted:
         query = Query(query=query, dim=str(buffer * 1000), price_interval=price, rooms=rooms, living_area=area,
                   object_type=building_types, is_new_construction=new_production)
-        houses = api_caller.get_booli_listings(query.json())
+        #houses = api_caller.get_booli_listings(query.json())
+        houses = api_caller.get_booli_listings(query, str(query))
 
-        for house in houses:
-            st.subheader(house.location.address.streetAddress)
-            st.dataframe(pd.DataFrame([house.dict()]).T)
-            # st.write(house)
-            pass
+        c1, c2 = st.columns([3, 1])
+        with c1:
+            for house in houses:
+                st.subheader(house.location.address.streetAddress)
+                st.dataframe(pd.DataFrame([house.dict()]).T, use_container_width=True)
+
+                pass
+        with c2:
+            st.markdown("<div style='background:lightgray;padding:10px;border-radius:6px;height: 250px;'>Kul att veta :)</div>", unsafe_allow_html=True)
 
 
 

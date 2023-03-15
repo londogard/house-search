@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from booli_route import booli
+from backend.booli_route import booli
 
 app = FastAPI(title="House Search",debug=True)
 app.include_router(booli.router)
