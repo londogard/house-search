@@ -1,14 +1,13 @@
 from dataclasses import dataclass
 from typing import Any, Literal
-
+from pydantic import BaseModel
 
 # https://www.booli.se/p/api/referens
 CORE_URL = "https://www.booli.se/api/proxy" # https://api.booli.se/listings?...
 LISTINGS_URL = f"{CORE_URL}?url=/listings"
 
 
-@dataclass
-class Query:
+class Query(BaseModel):
     query: str | None = None
     center_coordinate: tuple[float, float] | None = None
     dim: str | None = None
@@ -74,41 +73,33 @@ class Query:
 
         return params[1:]   # remove first &
 
-@dataclass
-class Source:
+class Source(BaseModel):
     id: int
     url: str
     type: str
     name: str
 
-@dataclass
-class Address:
-    city: str
-    streetAddress: str
+class Address(BaseModel):
+    city: str | None = None
+    streetAddress: str | None = None
 
-@dataclass
-class Position:
+class Position(BaseModel):
     latitude: float
     longitude: float
 
-@dataclass
-class Region:
+class Region(BaseModel):
     countyName: str
     municipalityName: str
 
-@dataclass
-class Location:
+class Location(BaseModel):
     address: Address
     position: Position
     region: Region
     namedAreas: list[str]
 
-@dataclass
-class PropertyResponse:
+class PropertyResponse(BaseModel):
     source: Source
     rooms: int
-    location: Location
-    constructionYear: int
     hasPatio: int
     hasSolarPanels: int
     hasFireplace: int
@@ -120,12 +111,13 @@ class PropertyResponse:
     published: str
     biddingOpen: int
     url: str
+    constructionYear: int | None = None
+    location: Location | None = None
     additionalArea: int | None = None
     rent: float | None = None
     floor: str | None = None
 
-@dataclass
-class QueryResponse:
+class QueryResponse(BaseModel):
     limit: int
     offset: int
     listings: list[PropertyResponse]

@@ -27,7 +27,10 @@ def get_listings(query: Query) -> list[PropertyResponse]:
 
     if len(r_json):
         # TODO wrap and get all listings rather than first [limit]
-        response = QueryResponse(**json.loads(r_json))
+        try:
+            response = QueryResponse(**json.loads(r_json))
+        except TypeError as e:
+            return []
 
         return response.listings
     else:
