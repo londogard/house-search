@@ -58,7 +58,7 @@ def get_pois_in_range_by_filter_efficient(nearby: NearbyFilter, center: tuple[fl
 
     return get_pois_in_range(center, buffer_meters, selected_tag_dict)
 
-def get_pois_in_range_by_filter(nearby: NearbyFilter, center: tuple[float, float], buffer_meters: int | None) -> tuple[GeoDataFrame, bool]:
+def get_pois_in_range_by_filter(nearby: NearbyFilter, center: tuple[float, float], buffer_meters: int | None) -> tuple[GeoDataFrame | None, bool]:
     passing = True
     gdfs = []
     if nearby.bathing_place:
@@ -81,8 +81,10 @@ def get_pois_in_range_by_filter(nearby: NearbyFilter, center: tuple[float, float
         convenience_stores = get_convenience_stores_in_range(center, buffer_meters)
         passing = passing and not convenience_stores.empty
         gdfs.append(convenience_stores)
-    
-    return (pd.concat(gdfs), passing)
+
+    if len(gdfs):
+        return (pd.concat(gdfs), passing)
+    return (None, passing)
 
 def get_pois_in_range(center: tuple[float, float] | Polygon | str, buffer_meters: int | None, tags: dict[str, Any]) -> GeoDataFrame:
     match center:

@@ -13,7 +13,7 @@ def get_tags() -> dict[str, Any]:
     return osm_query.get_tag_dict()
 
 
-st.set_page_config("House Search", page_icon="🏠", layout="wide")
+st.set_page_config("House Finder", page_icon="🏠", layout="wide")
 
 buildings = ["alla", "villa", "lägenhet", "gård", "tomt-mark", "fritidshus", "parhus", "radhus", "kedjehus"]
 buildings_en = ["All Types", "🏠 House", "Apartment", "Farm", "Land Area", "Cottage", "Semi-Detached House", "Townhouse",
@@ -38,6 +38,9 @@ def main():
         submitted = st.form_submit_button("Find Houses!")
 
     if submitted:
+        if not len(query):
+            return st.warning("Query is empty, please add something!!")
+
         props = filter_data.house_properties
 
         query = Query(query=query, dim=str(buffer * 1000), price_interval=props.price,
@@ -64,15 +67,16 @@ def main():
                         f"[booli.se]({house.url})"
                     ]
                     st.markdown("".join(rows), unsafe_allow_html=True)
-                    with st.expander("Show nearby"):
-                        st.dataframe(gdf.drop("geometry", axis="columns"), use_container_width=True)
+                    if gdf is not None:
+                        with st.expander("Show nearby"):
+                            st.dataframe(gdf.drop("geometry", axis="columns"), use_container_width=True)
                     st.write("---")
                 else:
                     missing_houses.append(house.location.address.streetAddress)
 
             if len(missing_houses):
                 st.subheader("Houses not fulfilling the criterias")
-                st.write(",".join(missing_houses))
+                st.write(", ".join(missing_houses))
 
             st.subheader("Quick Compare All")
             df = pd.DataFrame([h.dict() for h in houses])
