@@ -90,13 +90,10 @@ def get_pois_in_range(center: tuple[float, float] | Polygon | str, buffer_meters
     match center:
         # additionally exists like _from_address, _from_place, ...
         case tuple():
-            print("HEHE", center)
             return ox.geometries_from_point(center, dist=buffer_meters, tags=tags)
         case Polygon():
-            print("HOHO")
             return ox.geometries_from_polygon(center, tags=tags)
         case str():
-            print("place")
             return ox.geometries_from_place(center, tags=tags)
 
 

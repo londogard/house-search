@@ -15,10 +15,17 @@ def get_tags() -> dict[str, Any]:
 
 st.set_page_config("Home Finder", page_icon="🏠", layout="wide")
 
-buildings = ["alla", "villa", "lägenhet", "gård", "tomt-mark", "fritidshus", "parhus", "radhus", "kedjehus"]
-buildings_en = ["All Types", "🏠 House", "Apartment", "Farm", "Land Area", "Cottage", "Semi-Detached House", "Townhouse",
-                "Terraced House"]
-buildings = {en: se for se, en in zip(buildings, buildings_en)}
+buildings = {
+    "All Types": "alla",
+    "🏠 House": "villa",
+    "Apartment": "lägenhet",
+    "Farm": "gård",
+    "Land Area": "tomt-mark",
+    "Cottage": "fritidshus",
+    "Semi-Detached House": "parhus",
+    "Townhouse": "radhus",
+    "Terraced House": "kedjehus"
+}
 
 
 def main():
@@ -28,7 +35,7 @@ def main():
                               help="Can be a free-text, coordinate or other.")
         buffer = st.slider("Expand Area with", 0, 300, 0, 10, format="%d km")
 
-        building_types = st.multiselect("Building Type", buildings_en, default=["All Types"])
+        building_types = st.multiselect("Building Type", buildings.keys(), default=["All Types"])
         building_types = [buildings[building_type] for building_type in building_types]
         if "alla" in building_types:
             building_types = None
