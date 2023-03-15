@@ -13,7 +13,7 @@ def get_tags() -> dict[str, Any]:
     return osm_query.get_tag_dict()
 
 
-st.set_page_config("House Finder", page_icon="🏠", layout="wide")
+st.set_page_config("Home Finder", page_icon="🏠", layout="wide")
 
 buildings = ["alla", "villa", "lägenhet", "gård", "tomt-mark", "fritidshus", "parhus", "radhus", "kedjehus"]
 buildings_en = ["All Types", "🏠 House", "Apartment", "Farm", "Land Area", "Cottage", "Semi-Detached House", "Townhouse",
@@ -22,7 +22,7 @@ buildings = {en: se for se, en in zip(buildings, buildings_en)}
 
 
 def main():
-    st.title("House Search by Us")
+    st.title("Home Finder 🔍 (by HEMA)")
     with st.form(key="filter-form"):
         query = st.text_input("Where", placeholder="Where do you want to live?",
                               help="Can be a free-text, coordinate or other.")
@@ -69,7 +69,7 @@ def main():
                     st.markdown("".join(rows), unsafe_allow_html=True)
                     if gdf is not None:
                         with st.expander("Show nearby"):
-                            st.dataframe(gdf.drop("geometry", axis="columns"), use_container_width=True)
+                            st.dataframe(gdf.drop(["geometry", "osmid", "nodes", "element_type"], axis="columns", errors="ignore"), use_container_width=True)
                     st.write("---")
                 else:
                     missing_houses.append(house.location.address.streetAddress)
