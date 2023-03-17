@@ -83,7 +83,9 @@ def get_pois_in_range_by_filter(nearby: NearbyFilter, center: tuple[float, float
         gdfs.append(convenience_stores)
 
     if len(gdfs):
-        return (pd.concat(gdfs), passing)
+        gdf = pd.concat(gdfs)
+        gdf["size"] = 1
+        return (gdf, passing)
     return (None, passing)
 
 def get_pois_in_range(center: tuple[float, float] | Polygon | str, buffer_meters: int | None, tags: dict[str, Any]) -> GeoDataFrame:
@@ -104,6 +106,7 @@ def get_bus_stops_in_range(center: tuple[float, float] | Polygon | str, buffer_m
                "amenity": ["bus_station", "bicycle_rental"],
     }
     gdf = get_pois_in_range(center, buffer_meters, tags)
+    gdf["type"] = "bus_stop"
     return gdf
 
 
@@ -112,6 +115,7 @@ def get_convenience_stores_in_range(center: tuple[float, float] | Polygon | str,
                "shop": ["convenience", "frozen_food", "greengrocer", "supermarket"],
     }
     gdf = get_pois_in_range(center, buffer_meters, tags)
+    gdf["type"] = "convenience_store"
     return gdf
 
 
@@ -120,6 +124,7 @@ def get_restaurants_in_range(center: tuple[float, float] | Polygon | str, buffer
                "amenity": ["restaurant", "cafe", "fast_food", "food_court", "biergarten", "pub"],
     }
     gdf = get_pois_in_range(center, buffer_meters, tags)
+    gdf["type"] = "restaurant"
     return gdf
 
 
@@ -130,6 +135,7 @@ def get_gyms_in_range(center: tuple[float, float] | Polygon | str, buffer_meters
                "building": ["sports_hall"]
     }
     gdf = get_pois_in_range(center, buffer_meters, tags)
+    gdf["type"] = "gym"
     return gdf
 
 
@@ -139,6 +145,7 @@ def get_water_in_range(center: tuple[float, float] | Polygon | str, buffer_meter
                "leisure": ["bathing_place"],
     }
     gdf = get_pois_in_range(center, buffer_meters, tags)
+    gdf["type"] = "water"
     return gdf
 
 if __name__ == '__main__':

@@ -1,3 +1,4 @@
+import shapely
 import streamlit as st
 import pandas as pd
 
@@ -7,6 +8,11 @@ from frontend.additional_filters import additional_filters
 import osm_query
 from typing import Any
 from osm_query import get_pois_in_range_by_filter
+import plotly.express as px
+import geopandas as gpd
+
+token = "pk.eyJ1IjoiaGxvbmRvZ2FyZCIsImEiOiJjbGZheWtraDUydjlhM3ZyMDhnYzJiOGplIn0.DCD4UmtJzv8e1CAS2x822Q"
+px.set_mapbox_access_token(token)
 
 @st.cache_resource
 def get_tags() -> dict[str, Any]:
@@ -65,19 +71,29 @@ def main():
 
                 if passing:
                     rent = "." if house.rent is None else f" with {house.rent} SEK/month rent."
-
-                    st.subheader(f"{house.location.address.streetAddress} ({house.location.address.city})")
-
-                    rows = [
-                        f"**{house.objectType}** with {house.rooms} rooms ({house.livingArea} m²).  \n"
-                        f"Listing Price is {house.listPrice / 1e6} million SEK{rent}  \n",
-                        f"[booli.se]({house.url})"
-                    ]
-                    st.markdown("".join(rows), unsafe_allow_html=True)
-                    if gdf is not None:
-                        with st.expander("Show nearby"):
-                            st.dataframe(gdf.drop(["geometry", "osmid", "nodes", "element_type"], axis="columns", errors="ignore"), use_container_width=True)
-                    st.write("---")
+                    with st.expander("Click to Expand", True):
+                        house_info_col,map_data_col = st.columns(2)
+                        rows = [
+                            f"**{house.objectType}** with {house.rooms} rooms ({house.livingArea} m²).  \n"
+                            f"Listing Price is {house.listPrice / 1e6} million SEK{rent}  \n",
+                            f"[booli.se]({house.url})"
+                        ]
+                        with house_info_col:
+                            st.subheader(f"{house.location.address.streetAddress} ({house.location.address.city})")
+                            st.markdown("".join(rows), unsafe_allow_html=True)
+                        with map_data_col:
+                            if gdf is not None:
+                                gdf = pd.concat([gdf, gpd.GeoDataFrame([{"geometry": shapely.Point(reversed(coord)), "type": "House", "name": house.location.address.streetAddress, "size": 10}])], ignore_index=True)
+                                gdf["name"] = gdf["name"].fillna("MISSING")
+                                fig = px.scatter_mapbox(gdf,
+                                                        lat=gdf.geometry.centroid.y,
+                                                        lon=gdf.geometry.centroid.x,
+                                                        color="type",
+                                                        hover_data=["name"],
+                                                        size="size",
+                                                        zoom=12,
+                                                        )
+                                st.plotly_chart(fig)
                 else:
                     missing_houses.append(house.location.address.streetAddress)
 
@@ -91,7 +107,7 @@ def main():
             st.dataframe(df, use_container_width=True)
         with c2:
             st.markdown(
-                "<div style='background:lightgray;padding:10px;border-radius:6px;height: 250px;'>Kul att veta :)</div>",
+                "<div style='background:WhiteSmoke;padding:10px;border-radius:6px;height: 250px;'>Kul att veta :)</div>",
                 unsafe_allow_html=True)
 
 
