@@ -11,7 +11,7 @@ from osm_query import get_pois_in_range_by_filter
 import plotly.express as px
 import geopandas as gpd
 
-token = "pk.eyJ1IjoiaGxvbmRvZ2FyZCIsImEiOiJjbGZheWtraDUydjlhM3ZyMDhnYzJiOGplIn0.DCD4UmtJzv8e1CAS2x822Q"
+token = "<FILL>"
 px.set_mapbox_access_token(token)
 
 @st.cache_resource
