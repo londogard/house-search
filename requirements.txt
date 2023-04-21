@@ -4,3 +4,4 @@ black
 plotly>=5.13.1
 osmnx
 streamlit
+pydantic
