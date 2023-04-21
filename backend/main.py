@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 from backend.booli_route import booli
 
-app = FastAPI(title="House Search",debug=True)
+app = FastAPI(title="House Search", debug=True)
 app.include_router(booli.router)
+
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
-

@@ -17,9 +17,14 @@ def house_property_filter() -> HouseProperties:
     with c2:
         area = st.slider("Living Area", 0, 250, (0, 250), 10, format="%d m²")
     with c3:
-        price = st.slider("Price (milion SEK)", 0., 20., (0., 20.), 0.1, format="%.1f")
+        price = st.slider(
+            "Price (milion SEK)", 0.0, 20.0, (0.0, 20.0), 0.1, format="%.1f"
+        )
+        price = [p * 1e6 for p in price]
 
-    return HouseProperties(rooms=rooms, new_production=new_production, area=area, price=price)
+    return HouseProperties(
+        rooms=rooms, new_production=new_production, area=area, price=price
+    )
 
 
 class NearbyFilter(BaseModel):
@@ -32,15 +37,21 @@ class NearbyFilter(BaseModel):
 
 
 def nearby_filter():
-    default = st.slider("Max Distance", 0., 50., 5., 0.5, format="%.1f km")
+    default = st.slider("Max Distance", 0.0, 50.0, 5.0, 0.5, format="%.1f km")
     bus_stop = st.checkbox("Bus Stops")
     gym = st.checkbox("Gym")
     convenience_store = st.checkbox("Convenience Store")
     restaurants = st.checkbox("Restaurants")
     bathing_place = st.checkbox("Bathing Place")
 
-    return NearbyFilter(distance=default, bus_stop=bus_stop, gym=gym, convenience_store=convenience_store,
-                        restaurants=restaurants, bathing_place=bathing_place)
+    return NearbyFilter(
+        distance=default,
+        bus_stop=bus_stop,
+        gym=gym,
+        convenience_store=convenience_store,
+        restaurants=restaurants,
+        bathing_place=bathing_place,
+    )
 
 
 class FilterData(BaseModel):

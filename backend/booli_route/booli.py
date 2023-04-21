@@ -1,8 +1,13 @@
-import json
-
-from backend.booli_route.booli_api import PropertyResponse, Query, LISTINGS_URL, QueryResponse
-from fastapi import APIRouter
 import requests
+import streamlit
+from fastapi import APIRouter
+
+from backend.booli_route.booli_api import (
+    LISTINGS_URL,
+    PropertyResponse,
+    Query,
+    QueryResponse,
+)
 
 router = APIRouter(prefix="/booli_route")
 
@@ -23,18 +28,20 @@ def get_listings(query: Query) -> list[PropertyResponse]:
     print(f"{LISTINGS_URL}?{query.build_params()}")
     r = requests.get(f"{LISTINGS_URL}?{query.build_params()}")
     r.raise_for_status()
-    r_json = r.json()["body"]
+    r_json = r.json()
 
     if len(r_json):
         # TODO wrap and get all listings rather than first [limit]
         try:
-            response = QueryResponse(**json.loads(r_json))
-        except TypeError as e:
+            response = QueryResponse(**r_json)
+        except TypeError:
+            streamlit.write("Failed to parse Booli API")
             return []
 
         return response.listings
     else:
         raise Exception("No listings found")
+
 
 if __name__ == "__main__":
     print(get_listings(Query(query="malmö")))

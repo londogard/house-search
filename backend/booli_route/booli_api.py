@@ -1,10 +1,17 @@
+import hashlib
+import os
+import time
+import uuid
 from typing import Any, Literal
 
 from pydantic import BaseModel
 
 # https://www.booli.se/p/api/referens
-CORE_URL = "https://www.booli.se/api/proxy" # https://api.booli.se/listings?...
-LISTINGS_URL = f"{CORE_URL}?url=/listings"
+PROXY_LISTING_URL = "https://www.booli.se/api/proxy?url=/listings"
+LISTINGS_URL = "https://api.booli.se/listings"
+
+CALLER_ID = os.environ.get("BOOLI_CALLER_ID")
+KEY = os.environ.get("BOOLI_KEY")
 
 
 class Query(BaseModel):
@@ -18,14 +25,27 @@ class Query(BaseModel):
     price_sqm: tuple[float | None, float | None] | None = None
     living_area: tuple[float | None, float | None] | None = None
     plot_area: tuple[float | None, float | None] | None = None
-    object_type: list[Literal["villa", "lägenhet", "gård", "tomt-mark", "fritidshus", "parhus", "radhus", "kedjehus"]] | None = None
+    object_type: list[
+        Literal[
+            "villa",
+            "lägenhet",
+            "gård",
+            "tomt-mark",
+            "fritidshus",
+            "parhus",
+            "radhus",
+            "kedjehus",
+        ]
+    ] | None = None
     construction_year: tuple[int | None, int | None] | None = None
     only_price_decreased: bool = False
     is_new_construction: bool | None = None
     limit: int | None = None
     offset: int | None = None
 
-    def interval_matcher(self, interval: tuple | None, _from: str, _to: str, params: str) -> str:
+    def interval_matcher(
+        self, interval: tuple | None, _from: str, _to: str, params: str
+    ) -> str:
         match interval:
             case [None, None]:
                 pass
@@ -46,15 +66,27 @@ class Query(BaseModel):
             params += f"&center={self.center_coordinate[0]},{self.center_coordinate[1]}"
         if self.dim is not None:
             params += f"&dim={self.dim}"
-        params = self.interval_matcher(self.price_interval, "minListPrice", "maxListPrice", params)
+        params = self.interval_matcher(
+            self.price_interval, "minListPrice", "maxListPrice", params
+        )
         if self.area_id is not None:
             params += f"&areaId={self.area_id}"
         params = self.interval_matcher(self.rooms, "minRooms", "maxRooms", params)
-        params = self.interval_matcher(self.price, "minListPrice", "maxListPrice", params)
-        params = self.interval_matcher(self.price_sqm, "minListSqmPrice", "maxListSqmPrice", params)
-        params = self.interval_matcher(self.living_area, "minLivingArea", "maxLivingArea", params)
-        params = self.interval_matcher(self.plot_area, "minPlotArea", "maxPlotArea", params)
-        params = self.interval_matcher(self.construction_year, "minConstructionYear", "maxConstructionYear", params)
+        params = self.interval_matcher(
+            self.price, "minListPrice", "maxListPrice", params
+        )
+        params = self.interval_matcher(
+            self.price_sqm, "minListSqmPrice", "maxListSqmPrice", params
+        )
+        params = self.interval_matcher(
+            self.living_area, "minLivingArea", "maxLivingArea", params
+        )
+        params = self.interval_matcher(
+            self.plot_area, "minPlotArea", "maxPlotArea", params
+        )
+        params = self.interval_matcher(
+            self.construction_year, "minConstructionYear", "maxConstructionYear", params
+        )
 
         if self.object_type is not None:
             params += f"&objectType={','.join(self.object_type)}"
@@ -63,7 +95,7 @@ class Query(BaseModel):
             params += "&priceDecrease=1"
 
         if self.is_new_construction is not None:
-            params += f"&isNewConstruction=1"
+            params += "&isNewConstruction=1"
 
         if self.limit is not None:
             params += f"&limit={self.limit}"
@@ -71,7 +103,21 @@ class Query(BaseModel):
         if self.offset is not None:
             params += f"&offset={self.offset}"
 
-        return params[1:]   # remove first &
+        uniq = str(uuid.uuid4())[:16]
+        time_ = int(time.time())
+        sha1 = hashlib.sha1(
+            CALLER_ID.encode("UTF-8")
+            + str(time_).encode("UTF-8")
+            + KEY.encode("UTF-8")
+            + uniq.encode("UTF-8")
+        )
+        # sha1.hexdigest()
+        params += (
+            f"&callerId={CALLER_ID}&time={time_}&unique={uniq}&hash={sha1.hexdigest()}"
+        )
+
+        return params[1:]  # remove first &
+
 
 class Source(BaseModel):
     id: int
@@ -79,17 +125,21 @@ class Source(BaseModel):
     type: str
     name: str
 
+
 class Address(BaseModel):
     city: str | None = None
     streetAddress: str | None = None
+
 
 class Position(BaseModel):
     latitude: float
     longitude: float
 
+
 class Region(BaseModel):
     countyName: str
     municipalityName: str
+
 
 class Location(BaseModel):
     address: Address
@@ -97,11 +147,12 @@ class Location(BaseModel):
     region: Region
     namedAreas: list[str]
 
+
 class PropertyResponse(BaseModel):
     source: Source
     rooms: int
     livingArea: int
-    listPrice: int
+    listPrice: int | None
     booliId: int
     objectType: str
     published: str
@@ -116,6 +167,7 @@ class PropertyResponse(BaseModel):
     additionalArea: int | None = None
     rent: int | None = None
     floor: str | None = None
+
 
 class QueryResponse(BaseModel):
     limit: int
