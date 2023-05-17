@@ -86,6 +86,8 @@ We use FastAPI as a backend and streamlit as a frontend. This decoupling makes t
 ### 4. FastAPI + (React / Svelte / ...)
 Slower development. Better.
 
-### 5. ???
+### 5. GIF
 
-...
+![house_search](https://github.com/londogard/house-search/assets/7490199/4e5fac4b-da72-4683-bdf2-6982381b0b1b)
+
+Simple as is.  
