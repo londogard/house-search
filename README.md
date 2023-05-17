@@ -88,6 +88,8 @@ Slower development. Better.
 
 ### 5. GIF
 
-![house_search](https://github.com/londogard/house-search/assets/7490199/4e5fac4b-da72-4683-bdf2-6982381b0b1b)
+
+[house_search.mp4](https://github.com/londogard/house-search/assets/7490199/9cf83ce5-fe68-40aa-ae2c-0354874a1805)
+
 
 Simple as is.  
